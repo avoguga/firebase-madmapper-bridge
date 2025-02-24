@@ -1,0 +1,44 @@
+{
+  "name": "firebase-madmapper-bridge",
+  "version": "1.0.0",
+  "description": "A bridge system connecting Firebase to Madmapper using OSC protocol, enabling web-based control of Madmapper through real-time database updates",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "madmapper",
+    "osc",
+    "firebase",
+    "real-time",
+    "nodejs",
+    "express",
+    "video-control",
+    "mapping"
+  ],
+  "author": "Gustavo Henrique",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2",
+    "firebase": "^10.7.0",
+    "node-osc": "^8.0.11",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "prettier": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/avoguga/firebase-madmapper-bridge"
+  },
+  "bugs": {
+    "url": "https://github.com/avoguga/firebase-madmapper-bridge/issues"
+  }
+}
