@@ -1,5 +1,5 @@
 const { initializeApp } = require("firebase/app");
-const { getDatabase, ref, onValue, set } = require("firebase/database");
+const { getDatabase, ref, onValue, set, push } = require("firebase/database");
 const config = require("../config/config");
 
 class FirebaseService {
@@ -8,12 +8,29 @@ class FirebaseService {
     const app = initializeApp(config.firebase);
     this.database = getDatabase(app);
     this.initializeVideoListener();
+    this.initializeOscListener();
   }
 
   initializeVideoListener() {
     const videoRef = ref(this.database, "currentVideo");
     onValue(videoRef, async (snapshot) => {
       await this.handleVideoUpdate(snapshot.val());
+    });
+  }
+
+  initializeOscListener() {
+    const oscRef = ref(this.database, "oscCommands");
+    onValue(oscRef, async (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        // Processa cada comando na lista
+        Object.keys(data).forEach(async (key) => {
+          const command = data[key];
+          if (command && !command.processed) {
+            await this.handleOscCommand(command, key);
+          }
+        });
+      }
     });
   }
 
@@ -31,10 +48,34 @@ class FirebaseService {
     }
   }
 
+  async handleOscCommand(data, commandKey) {
+    if (data?.oscAddress) {
+      try {
+        const value = data.value !== undefined ? data.value : 1;
+        await this.oscService.sendMessage(data.oscAddress, value);
+        console.log(`OSC command sent to ${data.oscAddress} with value ${value}`);
+        
+        // Marca o comando como processado
+        await set(ref(this.database, `oscCommands/${commandKey}/processed`), true);
+      } catch (error) {
+        console.error("Error sending OSC command:", error);
+      }
+    }
+  }
+
   async updateCurrentVideo(videoId) {
     return set(ref(this.database, "currentVideo"), {
       playVideo: true,
       videoId,
+    });
+  }
+
+  async sendOscCommand(oscAddress, value = 1) {
+    return push(ref(this.database, "oscCommands"), {
+      oscAddress,
+      value,
+      timestamp: Date.now(),
+      processed: false,
     });
   }
 }

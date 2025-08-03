@@ -29,6 +29,31 @@ function createVideoRouter(firebaseService) {
     }
   });
 
+  router.post("/send-osc", async (req, res) => {
+    const { oscAddress, value = 1 } = req.body;
+
+    if (!oscAddress) {
+      return res.status(400).json({
+        success: false,
+        message: "OSC address is required",
+      });
+    }
+
+    try {
+      await firebaseService.sendOscCommand(oscAddress, value);
+      res.json({
+        success: true,
+        message: `OSC command sent to ${oscAddress}`,
+      });
+    } catch (error) {
+      console.error("Error sending OSC command:", error);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
+    }
+  });
+
   return router;
 }
 
